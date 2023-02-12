@@ -28,3 +28,9 @@ const apiKey = args.apiKey || process.env.OPENAI_API_KEY || (() => {
 const api = new ChatGPTAPI({
   apiKey,
 })
+
+async function main() {
+  const { text } = await api.sendMessage('Test connection');
+}
+
+main();
