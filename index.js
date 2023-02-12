@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+
+'use strict'
 import { execSync } from 'child_process';
 import { ChatGPTAPI } from 'chatgpt'
 import inquirer from 'inquirer';
