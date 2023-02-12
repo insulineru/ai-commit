@@ -32,9 +32,9 @@ const api = new ChatGPTAPI({
 async function main() {
   const diff = execSync('git diff --staged').toString()
 
-  const prompt = 'Analyze changes above and generate a short commit title, using gitmoji and conventional commits. Structure: <emoji> <type>: <subject>'
+  const prompt = 'I want you to act as a senior Frontend developer. I will provide you with my code changes as a git diff and ask you to generate a commit message. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits and gitmoji to design the messages. The commit structure should be of `<emoji> <type in lowercase>: <subject>`\nHere is a list of changes:\n'
 
-  const { text } = await api.sendMessage(`${diff}\n # ${prompt}`)
+  const { text } = await api.sendMessage(prompt + diff)
 
   console.log(`Proposed Commit:\n------------------------------\n${text}\n------------------------------`)
 
