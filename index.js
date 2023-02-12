@@ -32,11 +32,30 @@ const api = new ChatGPTAPI({
 async function main() {
   const diff = execSync('git diff --staged').toString()
 
-  const prompt = 'Generate a short commit title based on diff changes above, using gitmoji and conventional commits. Structure: <emoji> <type>: <subject>'
+  const prompt = 'Analyze changes above and generate a short commit title, using gitmoji and conventional commits. Structure: <emoji> <type>: <subject>'
 
   const { text } = await api.sendMessage(`${diff}\n # ${prompt}`)
 
   console.log(`Proposed Commit:\n------------------------------\n${text}\n------------------------------`)
+
+  inquirer
+    .prompt([
+      {
+        type: 'confirm',
+        name: 'continue',
+        message: 'Do you want to continue?',
+        default: true,
+      },
+    ])
+    .then((answers) => {
+      if (!answers.continue) {
+        console.log('Commit aborted by user.');
+        process.exit(1);
+      }
+      // info('Committing Message...');
+      console.log('Committing Message...')
+      execSync(`git commit -F -`, { input: text });
+    });
 }
 
 main();
