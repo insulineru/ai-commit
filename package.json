@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/insulineru/ai-commit#readme",
   "dependencies": {
-    "chatgpt": "^4.2.0"
+    "chatgpt": "^4.2.0",
+    "inquirer": "^9.1.4"
   }
 }
