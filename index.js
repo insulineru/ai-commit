@@ -16,6 +16,12 @@ const api = new ChatGPTAPI({
   apiKey,
 })
 
+const makeCommit = (input) => {
+  console.log('Committing Message... 🚀 ')
+  execSync(`git commit -F -`, { input });
+  console.log('Commit Successful! 🎉')
+}
+
 const generateSingleCommit = async () => {
   const prompt = 'I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits and gitmoji to design the messages. The commit structure should be of `<emoji> <type in lowercase>: <subject>`\nHere is a list of changes:\n'
 
@@ -37,10 +43,8 @@ const generateSingleCommit = async () => {
         console.log('Commit aborted by user 🙅‍♂️');
         process.exit(1);
       }
-      // info('Committing Message...');
-      console.log('Committing Message... 🚀 ')
-      execSync(`git commit -F -`, { input: text });
-      console.log('Commit Successful! 🎉')
+
+      makeCommit(text)
     });
 }
 
@@ -66,9 +70,8 @@ const generateListCommits = async (diff) => {
       generateListCommits(diff)
       return
     }
-    console.log('Committing Message... 🚀 ')
-    execSync(`git commit -F -`, { input: answers.commit });
-    console.log('Commit Successful! 🎉')
+
+    makeCommit(answers.commit)
   });
 }
 
