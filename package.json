@@ -1,12 +1,12 @@
 {
   "name": "ai-commit",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "type": "module",
   "description": "✨ Make Github commits easier with ChatGPT, Gitmoji and Conventional Commits 🚀",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish:major": "npm version major & npm publish --access public"
+    "publish:major": "npm version major && npm publish --access public"
   },
   "bin": {
     "ai-commit": "./index.js"
