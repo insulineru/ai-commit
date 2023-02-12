@@ -1,4 +1,7 @@
-# AI-Commit: The Commit Message Generator
+<p align="center"><img width="400px" alt="Via Protocol is the most advanced cross-chain aggregation protocol" src="https://user-images.githubusercontent.com/20267733/218333677-ebdb09e5-9487-434c-92f5-f4bdcc76f632.png" width="100%">
+</p>
+
+# **AI-Commit: The Commit Message Generator**
 
 💻 Tired of writing boring commit messages? Let AI-Commit help!
 
