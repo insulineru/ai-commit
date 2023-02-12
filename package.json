@@ -1,6 +1,7 @@
 {
   "name": "ai-commit",
   "version": "1.0.0",
+  "type": "module",
   "description": "✨ Make Github commits easier with ChatGPT, Gitmoji and Conventional Commits 🚀",
   "main": "index.js",
   "scripts": {
@@ -23,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/insulineru/ai-commit/issues"
   },
-  "homepage": "https://github.com/insulineru/ai-commit#readme"
+  "homepage": "https://github.com/insulineru/ai-commit#readme",
+  "dependencies": {
+    "chatgpt": "^4.2.0"
+  }
 }
