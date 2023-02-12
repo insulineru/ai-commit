@@ -5,6 +5,8 @@ import { getArgs } from './helpers.js';
 
 const args = getArgs();
 
+const REGENERATE_MSG = '♻️ Regenerate Commit Messages'
+
 const apiKey = args.apiKey || process.env.OPENAI_API_KEY || (() => {
     error('Please set the OPENAI_API_KEY environment variable.');
     process.exit(1);
@@ -49,6 +51,9 @@ const generateListCommits = async (diff) => {
 
   const msgs = text.split(',').map((msg) => msg.trim())
 
+  // add regenerate option
+  msgs.push(REGENERATE_MSG)
+
   inquirer.prompt([
     {
       type: 'list',
@@ -57,6 +62,10 @@ const generateListCommits = async (diff) => {
       choices: msgs,
     },
   ]).then((answers) => {
+    if (answers.commit === REGENERATE_MSG) {
+      generateListCommits(diff)
+      return
+    }
     console.log('Committing Message... 🚀 ')
     execSync(`git commit -F -`, { input: answers.commit });
     console.log('Commit Successful! 🎉')
