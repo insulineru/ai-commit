@@ -29,6 +29,12 @@ const generateSingleCommit = async () => {
 
   console.log(`Proposed Commit:\n------------------------------\n${text}\n------------------------------`)
 
+  if (args.force) {
+    makeCommit(text)
+    return
+  }
+
+
   inquirer
     .prompt([
       {
