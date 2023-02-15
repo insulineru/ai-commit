@@ -31,7 +31,6 @@ const generateSingleCommit = async (diff) => {
   const prompt =
     "I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Do not write any explanations or other words, just reply with the commit message. In our project, we use conventional commits, type must be in lowercase. \nHere is a list of changes:\n";
 
-  console.log(prompt + diff)
   const { text } = await api.sendMessage(prompt + diff);
 
   const gitmojiCommit = addGitmojiToCommitMessage(text);
