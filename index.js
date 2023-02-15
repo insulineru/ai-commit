@@ -29,8 +29,9 @@ const makeCommit = (input) => {
 
 const generateSingleCommit = async (diff) => {
   const prompt =
-    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits. The commit structure should be of `<type in lowercase>: <subject>` \nHere is a list of changes:\n";
+    "I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Do not write any explanations or other words, just reply with the commit message. In our project, we use conventional commits, type must be in lowercase. \nHere is a list of changes:\n";
 
+  console.log(prompt + diff)
   const { text } = await api.sendMessage(prompt + diff);
 
   const gitmojiCommit = addGitmojiToCommitMessage(text);
@@ -63,7 +64,7 @@ const generateSingleCommit = async (diff) => {
 
 const generateListCommits = async (diff) => {
   const prompt =
-    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line, separated by commas. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits. Here is a list of changes:\n";
+    "I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line. Do not write any explanations or other words, just reply with the commit messages separated by commas. In our project, we use conventional commits, type must be in lowercase. Here is a list of changes:\n";
 
   const { text } = await api.sendMessage(prompt + diff);
 
