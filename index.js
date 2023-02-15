@@ -63,7 +63,7 @@ const generateSingleCommit = async (diff) => {
 
 const generateListCommits = async (diff) => {
   const prompt =
-    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line, separated by commas. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits and gitmoji to design the messages. The commit structure should be of <emoji> <type in lowercase>: <subject>\nHere is a list of changes:\n";
+    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line, separated by commas. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits. Here is a list of changes:\n";
 
   const { text } = await api.sendMessage(prompt + diff);
 
