@@ -63,7 +63,7 @@ const generateSingleCommit = async (diff) => {
 
 const generateListCommits = async (diff) => {
   const prompt =
-    "I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line. Do not write any explanations or other words, just reply with the commit messages separated by commas. In our project, we use conventional commits, type must be in lowercase. Here is a list of changes:\n";
+    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message and make 5 comma-separated options.For each option, use the present tense, return the full sentence, and use the regular commit convention:"
 
   const { text } = await api.sendMessage(prompt + diff);
 
