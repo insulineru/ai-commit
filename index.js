@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 'use strict'
-import { exec, execSync } from "child_process";
+import { execSync } from "child_process";
 import { ChatGPTAPI } from "chatgpt";
 import inquirer from "inquirer";
 import { getArgs } from "./helpers.js";
+import { addGitmojiToCommitMessage } from './gitmoji.js'
 
 const args = getArgs();
 
@@ -28,16 +29,18 @@ const makeCommit = (input) => {
 
 const generateSingleCommit = async (diff) => {
   const prompt =
-    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits and gitmoji to design the messages. The commit structure should be of `<emoji> <type in lowercase>: <subject>`\nHere is a list of changes:\n";
+    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
 
   const { text } = await api.sendMessage(prompt + diff);
 
+  const gitmojiCommit = addGitmojiToCommitMessage(text);
+
   console.log(
-    `Proposed Commit:\n------------------------------\n${text}\n------------------------------`
+    `Proposed Commit:\n------------------------------\n${gitmojiCommit}\n------------------------------`
   );
 
   if (args.force) {
-    makeCommit(text);
+    makeCommit(gitmojiCommit);
     return;
   }
 
@@ -55,16 +58,16 @@ const generateSingleCommit = async (diff) => {
     process.exit(1);
   }
 
-  makeCommit(text);
+  makeCommit(gitmojiCommit);
 };
 
 const generateListCommits = async (diff) => {
   const prompt =
-    "I want you to act as a commit message generator. I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Generate 5 variants and send them in one line, separated by commas. Try to understand the meaning of the changes, not just the name of the file. In our project, we use conventional commits and gitmoji to design the messages. The commit structure should be of <emoji> <type in lowercase>: <subject>\nHere is a list of changes:\n";
+    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message and make 5 comma-separated options.For each option, use the present tense, return the full sentence, and use the regular commit convention:"
 
   const { text } = await api.sendMessage(prompt + diff);
 
-  const msgs = text.split(",").map((msg) => msg.trim());
+  const msgs = text.split(",").map((msg) => msg.trim()).map(msg => addGitmojiToCommitMessage(msg));
 
   // add regenerate option
   msgs.push(REGENERATE_MSG);
