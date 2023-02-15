@@ -29,7 +29,7 @@ const makeCommit = (input) => {
 
 const generateSingleCommit = async (diff) => {
   const prompt =
-    "I will provide you with my code changes as a git diff and I would like you to generate an appropriate commit message. Do not write any explanations or other words, just reply with the commit message. In our project, we use conventional commits, type must be in lowercase. \nHere is a list of changes:\n";
+    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
 
   const { text } = await api.sendMessage(prompt + diff);
 
