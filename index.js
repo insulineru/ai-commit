@@ -5,7 +5,8 @@ import { execSync } from "child_process";
 import { ChatGPTAPI } from "chatgpt";
 import inquirer from "inquirer";
 import { getArgs } from "./helpers.js";
-import { addGitmojiToCommitMessage } from './gitmoji.js'
+import { addGitmojiToCommitMessage } from './gitmoji.js';
+import { filterApi } from "./filterApi.js";
 
 const args = getArgs();
 
@@ -30,8 +31,11 @@ const makeCommit = (input) => {
 const generateSingleCommit = async (diff) => {
   const prompt =
     "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
+    + diff;
 
-  const { text } = await api.sendMessage(prompt + diff);
+  if (!filterApi(prompt)) process.exit(1);
+
+  const { text } = await api.sendMessage(prompt);
 
   const gitmojiCommit = addGitmojiToCommitMessage(text);
 
@@ -64,8 +68,11 @@ const generateSingleCommit = async (diff) => {
 const generateListCommits = async (diff) => {
   const prompt =
     "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message and make 5 comma-separated options.For each option, use the present tense, return the full sentence, and use the regular commit convention:"
+    + diff;
 
-  const { text } = await api.sendMessage(prompt + diff);
+  if (!filterApi(prompt)) process.exit(1);
+
+  const { text } = await api.sendMessage(prompt);
 
   const msgs = text.split(",").map((msg) => msg.trim()).map(msg => addGitmojiToCommitMessage(msg));
 
