@@ -33,7 +33,7 @@ const generateSingleCommit = async (diff) => {
     "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
     + diff;
 
-  if (!filterApi(prompt)) process.exit(1);
+  if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
 
   const { text } = await api.sendMessage(prompt);
 
@@ -70,7 +70,7 @@ const generateListCommits = async (diff) => {
     "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message and make 5 comma-separated options.For each option, use the present tense, return the full sentence, and use the regular commit convention:"
     + diff;
 
-  if (!filterApi(prompt)) process.exit(1);
+  if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
 
   const { text } = await api.sendMessage(prompt);
 
