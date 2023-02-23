@@ -30,7 +30,9 @@ const makeCommit = (input) => {
 
 const generateSingleCommit = async (diff) => {
   const prompt =
-    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
+    "I want you to act as the author of a commit message in git."
+    + "I'll enter a git diff, and your job is to convert it into a useful commit message."
+    + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
     + diff;
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
@@ -65,16 +67,18 @@ const generateSingleCommit = async (diff) => {
   makeCommit(gitmojiCommit);
 };
 
-const generateListCommits = async (diff) => {
+const generateListCommits = async (diff, numOptions = 5) => {
   const prompt =
-    "I want you to act as the author of a commit message in git. I'll enter a git diff, and your job is to convert it into a useful commit message and make 5 comma-separated options.For each option, use the present tense, return the full sentence, and use the regular commit convention:"
+    "I want you to act as the author of a commit message in git."
+    + `I'll enter a git diff, and your job is to convert it into a useful commit message and make ${numOptions} options that are separated by ";".`
+    + "For each option, use the present tense, return the full sentence, and use the regular commit convention:"
     + diff;
 
-  if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
+  if (!await filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
 
   const { text } = await api.sendMessage(prompt);
 
-  const msgs = text.split(",").map((msg) => msg.trim()).map(msg => addGitmojiToCommitMessage(msg));
+  const msgs = text.split(";").map((msg) => msg.trim()).map(msg => addGitmojiToCommitMessage(msg));
 
   // add regenerate option
   msgs.push(REGENERATE_MSG);
