@@ -21,6 +21,8 @@ This package uses the power of OpenAI's GPT-3 model to understand your code chan
 
 `--force`: Automatically create a commit without being prompted to select a message (can't be used with `--list`)
 
+`--filter-fee`: Displays the approximate fee for using the API and prompts you to confirm the request
+
 `--apiKey`: Your OpenAI API key. It is not recommended to pass `apiKey` here, it is better to use `env` variable
 
 ## Contributing
