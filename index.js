@@ -8,6 +8,9 @@ import { getArgs } from "./helpers.js";
 import { addGitmojiToCommitMessage } from './gitmoji.js';
 import { filterApi } from "./filterApi.js";
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const args = getArgs();
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
