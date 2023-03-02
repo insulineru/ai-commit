@@ -8,6 +8,9 @@ import { getArgs } from "./helpers.js";
 import { addGitmojiToCommitMessage } from './gitmoji.js';
 import { filterApi } from "./filterApi.js";
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const args = getArgs();
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
@@ -32,7 +35,7 @@ const generateSingleCommit = async (diff) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
     + "I'll enter a git diff, and your job is to convert it into a useful commit message."
-    + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commit convention with type written in lowercase:"
+    + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
@@ -71,7 +74,7 @@ const generateListCommits = async (diff, numOptions = 5) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
     + `I'll enter a git diff, and your job is to convert it into a useful commit message and make ${numOptions} options that are separated by ";".`
-    + "For each option, use the present tense, return the full sentence, and use the regular commit convention:"
+    + "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
