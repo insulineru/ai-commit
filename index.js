@@ -4,7 +4,7 @@
 import { execSync } from "child_process";
 import { ChatGPTAPI } from "chatgpt";
 import inquirer from "inquirer";
-import { getArgs } from "./helpers.js";
+import { getArgs, checkGitRepository } from "./helpers.js";
 import { addGitmojiToCommitMessage } from './gitmoji.js';
 import { filterApi } from "./filterApi.js";
 
@@ -104,6 +104,13 @@ const generateListCommits = async (diff, numOptions = 5) => {
 };
 
 async function generateAICommit() {
+  const isGitRepository = checkGitRepository();
+
+  if (!isGitRepository) {
+    console.error("This is not a git repository 🙅‍♂️");
+    process.exit(1);
+  }
+
   const diff = execSync("git diff --staged").toString();
 
   // Handle empty diff
