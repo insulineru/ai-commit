@@ -21,15 +21,47 @@ if (!apiKey) {
   process.exit(1);
 }
 
+let template = args.template || process.env.AI_COMMIT_COMMIT_TEMPLATE
+const doAddEmoji = args.emoji || process.env.AI_COMMIT_ADD_EMOJI
+
 const api = new ChatGPTAPI({
   apiKey,
 });
+
+const processTemplate = ({template, commitMessage}) => {
+  if(!template.includes('COMMIT_MESSAGE')) {
+    console.log(`Warning: template doesn't include {COMMIT_MESSAGE}`)
+
+    return commitMessage;
+  }
+
+  let finalCommitMessage = template.replaceAll("{COMMIT_MESSAGE}", commitMessage);
+
+  if(finalCommitMessage.includes('GIT_BRANCH')) {  
+    const currentBranch = execSync("git branch --show-current").toString().replaceAll("\n", "");
+
+    console.log('Using currentBranch: ', currentBranch);
+  
+    finalCommitMessage = finalCommitMessage.replaceAll("{GIT_BRANCH}", currentBranch)
+  }
+
+  return finalCommitMessage;
+}
 
 const makeCommit = (input) => {
   console.log("Committing Message... 🚀 ");
   execSync(`git commit -F -`, { input });
   console.log("Commit Successful! 🎉");
 };
+
+
+const processEmoji = (msg, doAddEmoji) => {
+  if(doAddEmoji) {
+    return addGitmojiToCommitMessage(msg);
+  }
+
+  return msg;
+}
 
 const generateSingleCommit = async (diff) => {
   const prompt =
@@ -42,14 +74,29 @@ const generateSingleCommit = async (diff) => {
 
   const { text } = await api.sendMessage(prompt);
 
-  const gitmojiCommit = addGitmojiToCommitMessage(text);
+  let finalCommitMessage = processEmoji(text, args.emoji);
 
-  console.log(
-    `Proposed Commit:\n------------------------------\n${gitmojiCommit}\n------------------------------`
-  );
+  if(args.template){
+    finalCommitMessage = processTemplate({
+      template: args.template,
+      commitMessage: finalCommitMessage,
+    })
+  
+    console.log(
+      `Proposed Commit With Template:\n------------------------------\n${finalCommitMessage}\n------------------------------`
+    );
+  } else {
+
+    console.log(
+      `Proposed Commit:\n------------------------------\n${finalCommitMessage}\n------------------------------`
+    );
+  
+  }
+
+  
 
   if (args.force) {
-    makeCommit(gitmojiCommit);
+    makeCommit(finalCommitMessage);
     return;
   }
 
@@ -67,7 +114,7 @@ const generateSingleCommit = async (diff) => {
     process.exit(1);
   }
 
-  makeCommit(gitmojiCommit);
+  makeCommit(finalCommitMessage);
 };
 
 const generateListCommits = async (diff, numOptions = 5) => {
@@ -81,7 +128,14 @@ const generateListCommits = async (diff, numOptions = 5) => {
 
   const { text } = await api.sendMessage(prompt);
 
-  const msgs = text.split(";").map((msg) => msg.trim()).map(msg => addGitmojiToCommitMessage(msg));
+  let msgs = text.split(";").map((msg) => msg.trim()).map(msg => processEmoji(msg, args.emoji));
+
+  if(args.template) {
+    msgs = msgs.map(msg => processTemplate({
+      template: args.template,
+      commitMessage: msg,
+    }))
+  }
 
   // add regenerate option
   msgs.push(REGENERATE_MSG);
