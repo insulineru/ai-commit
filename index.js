@@ -82,14 +82,21 @@ const sendMessage = async (input) => {
     }
     console.log('prompting ollama...', url, model)
     try {
-      const { response } = await fetch(url, {
+      const response = await fetch(url, {
 
         method: "POST",
         body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
 
       })
+      const responseJson=await response.json();
+      const answer = responseJson.response
+      console.log('response: ', answer)
       console.log('prompting ai done!')
-      return response
+      return answer
     } catch (err) {
       throw new Error('local model issues. details:' + err.message)
     }
@@ -109,12 +116,23 @@ const sendMessage = async (input) => {
 
 }
 
-const generateSingleCommit = async (diff) => {
-  const prompt =
+const getPromptForSingleCommit = (diff)=>{
+  if(AI_PROVIDER=='openai') {
+    const prompt =
     "I want you to act as the author of a commit message in git."
     + "I'll enter a git diff, and your job is to convert it into a useful commit message."
     + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
+    return prompt;
+  }
+  if(AI_PROVIDER=='ollama') {
+    //weaker ai so need to use simpler prompt maybe
+    return 'summarize this git diff in 10 words: ' + diff 
+  }
+}
+
+const generateSingleCommit = async (diff) => {
+  const prompt = getPromptForSingleCommit(diff)
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
 
