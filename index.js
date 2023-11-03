@@ -7,29 +7,33 @@ import inquirer from "inquirer";
 import { getArgs, checkGitRepository } from "./helpers.js";
 import { addGitmojiToCommitMessage } from './gitmoji.js';
 import { filterApi } from "./filterApi.js";
+import { AI_PROVIDER, MODEL, args } from "./config.js"
 
-import * as dotenv from 'dotenv';
-dotenv.config();
 
-const args = getArgs();
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
 
+
+
+console.log('Ai provider: ', AI_PROVIDER);
+
+const ENDPOINT = args.ENDPOINT || process.env.ENDPOINT
+
 const apiKey = args.apiKey || process.env.OPENAI_API_KEY;
-if (!apiKey) {
+
+
+if (AI_PROVIDER == 'openai') {
   console.error("Please set the OPENAI_API_KEY environment variable.");
   process.exit(1);
 }
 
+
+
 let template = args.template || process.env.AI_COMMIT_COMMIT_TEMPLATE
 const doAddEmoji = args.emoji || process.env.AI_COMMIT_ADD_EMOJI
 
-const api = new ChatGPTAPI({
-  apiKey,
-});
-
-const processTemplate = ({template, commitMessage}) => {
-  if(!template.includes('COMMIT_MESSAGE')) {
+const processTemplate = ({ template, commitMessage }) => {
+  if (!template.includes('COMMIT_MESSAGE')) {
     console.log(`Warning: template doesn't include {COMMIT_MESSAGE}`)
 
     return commitMessage;
@@ -37,11 +41,11 @@ const processTemplate = ({template, commitMessage}) => {
 
   let finalCommitMessage = template.replaceAll("{COMMIT_MESSAGE}", commitMessage);
 
-  if(finalCommitMessage.includes('GIT_BRANCH')) {  
+  if (finalCommitMessage.includes('GIT_BRANCH')) {
     const currentBranch = execSync("git branch --show-current").toString().replaceAll("\n", "");
 
     console.log('Using currentBranch: ', currentBranch);
-  
+
     finalCommitMessage = finalCommitMessage.replaceAll("{GIT_BRANCH}", currentBranch)
   }
 
@@ -56,11 +60,53 @@ const makeCommit = (input) => {
 
 
 const processEmoji = (msg, doAddEmoji) => {
-  if(doAddEmoji) {
+  if (doAddEmoji) {
     return addGitmojiToCommitMessage(msg);
   }
 
   return msg;
+}
+
+/** 
+ * send prompt to ai.
+ */
+const sendMessage = async (input) => {
+  if (AI_PROVIDER == 'ollama') {
+    //orca-mini as default since it's fast and lightweight model
+    const model = MODEL || 'orca-mini'
+    const url = 'http://localhost:11434/api/generate'
+    const data = {
+      model,
+      prompt: input,
+      stream: false
+    }
+    console.log('prompting ollama...', url, model)
+    try {
+      const { response } = await fetch(url, {
+
+        method: "POST",
+        body: JSON.stringify(data),
+
+      })
+      console.log('prompting ai done!')
+      return response
+    } catch (err) {
+      throw new Error('local model issues. details:' + err.message)
+    }
+  }
+
+  if (AI_PROVIDER == 'openai') {
+
+    console.log('prompting chat gpt...')
+    const api = new ChatGPTAPI({
+      apiKey,
+    });
+    const { text } = await api.sendMessage(input);
+    console.log('prompting ai done!')
+    return text
+
+  }
+
 }
 
 const generateSingleCommit = async (diff) => {
@@ -72,16 +118,16 @@ const generateSingleCommit = async (diff) => {
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
 
-  const { text } = await api.sendMessage(prompt);
+  const text = await sendMessage(prompt);
 
   let finalCommitMessage = processEmoji(text, args.emoji);
 
-  if(args.template){
+  if (args.template) {
     finalCommitMessage = processTemplate({
       template: args.template,
       commitMessage: finalCommitMessage,
     })
-  
+
     console.log(
       `Proposed Commit With Template:\n------------------------------\n${finalCommitMessage}\n------------------------------`
     );
@@ -90,10 +136,10 @@ const generateSingleCommit = async (diff) => {
     console.log(
       `Proposed Commit:\n------------------------------\n${finalCommitMessage}\n------------------------------`
     );
-  
+
   }
 
-  
+
 
   if (args.force) {
     makeCommit(finalCommitMessage);
@@ -126,11 +172,11 @@ const generateListCommits = async (diff, numOptions = 5) => {
 
   if (!await filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
 
-  const { text } = await api.sendMessage(prompt);
+  const text = await sendMessage(prompt);
 
   let msgs = text.split(";").map((msg) => msg.trim()).map(msg => processEmoji(msg, args.emoji));
 
-  if(args.template) {
+  if (args.template) {
     msgs = msgs.map(msg => processTemplate({
       template: args.template,
       commitMessage: msg,
