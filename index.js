@@ -72,8 +72,8 @@ const processEmoji = (msg, doAddEmoji) => {
  */
 const sendMessage = async (input) => {
   if (AI_PROVIDER == 'ollama') {
-    //orca-mini as default since it's fast and lightweight model
-    const model = MODEL || 'orca-mini'
+    //mistral as default since it's fast and clever model
+    const model = MODEL || 'mistral'
     const url = 'http://localhost:11434/api/generate'
     const data = {
       model,
@@ -116,19 +116,16 @@ const sendMessage = async (input) => {
 
 }
 
-const getPromptForSingleCommit = (diff)=>{
-  if(AI_PROVIDER=='openai') {
-    const prompt =
-    "I want you to act as the author of a commit message in git."
-    + "I'll enter a git diff, and your job is to convert it into a useful commit message."
-    + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
-    + diff;
-    return prompt;
+const getPromptForSingleCommit = (diff) => {
+  if (AI_PROVIDER == 'openai') {
+    return "I want you to act as the author of a commit message in git."
+      + "I'll enter a git diff, and your job is to convert it into a useful commit message."
+      + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
+      + diff;
   }
-  if(AI_PROVIDER=='ollama') {
-    //weaker ai so need to use simpler prompt maybe
-    return 'summarize this git diff in 10 words: ' + diff 
-  }
+  //for less smart models, give simpler instruction.
+  return 'Summarize this git diff into a useful, 10 words commit message: '+diff
+
 }
 
 const generateSingleCommit = async (diff) => {
