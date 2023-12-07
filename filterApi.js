@@ -1,5 +1,6 @@
 import { encode } from 'gpt-3-encoder';
 import inquirer from "inquirer";
+import { AI_PROVIDER } from "./config.js"
 
 const FEE_PER_1K_TOKENS = 0.02;
 const MAX_TOKENS = 4000;
@@ -7,6 +8,10 @@ const MAX_TOKENS = 4000;
 const FEE_COMPLETION = 0.001;
 
 async function filterApi({ prompt, numCompletion = 1, filterFee }) {
+    if(AI_PROVIDER == 'ollama'){
+        //ollama dont have any limits and is free so we dont need to filter anything
+        return true
+    }
     const numTokens = encode(prompt).length;
     const fee = numTokens / 1000 * FEE_PER_1K_TOKENS + (FEE_COMPLETION * numCompletion);
 
