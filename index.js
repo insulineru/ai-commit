@@ -22,7 +22,7 @@ const ENDPOINT = args.ENDPOINT || process.env.ENDPOINT
 const apiKey = args.apiKey || process.env.OPENAI_API_KEY;
 
 
-if (AI_PROVIDER == 'openai') {
+if (AI_PROVIDER == 'openai' && !apiKey) {
   console.error("Please set the OPENAI_API_KEY environment variable.");
   process.exit(1);
 }
@@ -67,7 +67,7 @@ const processEmoji = (msg, doAddEmoji) => {
   return msg;
 }
 
-/** 
+/**
  * send prompt to ai.
  */
 const sendMessage = async (input) => {
