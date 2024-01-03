@@ -21,6 +21,7 @@ const ENDPOINT = args.ENDPOINT || process.env.ENDPOINT
 
 const apiKey = args.apiKey || process.env.OPENAI_API_KEY;
 
+const language = args.language || process.env.AI_COMMIT_LANGUAGE || 'english';
 
 if (AI_PROVIDER == 'openai' && !apiKey) {
   console.error("Please set the OPENAI_API_KEY environment variable.");
@@ -119,7 +120,7 @@ const sendMessage = async (input) => {
 const getPromptForSingleCommit = (diff) => {
   if (AI_PROVIDER == 'openai') {
     return "I want you to act as the author of a commit message in git."
-      + "I'll enter a git diff, and your job is to convert it into a useful commit message."
+      + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language.`
       + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
       + diff;
   }
@@ -181,7 +182,7 @@ const generateSingleCommit = async (diff) => {
 const generateListCommits = async (diff, numOptions = 5) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
-    + `I'll enter a git diff, and your job is to convert it into a useful commit message and make ${numOptions} options that are separated by ";".`
+    + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language and make ${numOptions} options that are separated by ";".`
     + "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
