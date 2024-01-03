@@ -36,7 +36,7 @@ const makeCommit = (input) => {
 const generateSingleCommit = async (diff) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
-    + "I'll enter a git diff, and your job is to convert it into a useful commit message in " + language + "."
+    + "I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language."
     + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
@@ -75,7 +75,7 @@ const generateSingleCommit = async (diff) => {
 const generateListCommits = async (diff, numOptions = 5) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
-    + `I'll enter a git diff, and your job is to convert it into a useful commit message in " + language + " and make ${numOptions} options that are separated by ";".`
+    + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language and make ${numOptions} options that are separated by ";".`
     + "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
