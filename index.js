@@ -28,10 +28,10 @@ if (AI_PROVIDER == 'openai' && !apiKey) {
   process.exit(1);
 }
 
-
-
 let template = args.template || process.env.AI_COMMIT_COMMIT_TEMPLATE
 const doAddEmoji = args.emoji || process.env.AI_COMMIT_ADD_EMOJI
+
+const commitType = args['commit-type'];
 
 const processTemplate = ({ template, commitMessage }) => {
   if (!template.includes('COMMIT_MESSAGE')) {
@@ -118,16 +118,22 @@ const sendMessage = async (input) => {
 }
 
 const getPromptForSingleCommit = (diff) => {
-  if (AI_PROVIDER == 'openai') {
-    return "I want you to act as the author of a commit message in git."
-      + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language.`
-      + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
-      + diff;
+  if (AI_PROVIDER == "openai") {
+    return (
+      "I want you to act as the author of a commit message in git."
+      + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language`
+      + (commitType ? ` with commit type '${commitType}'. ` : ". ")
+      + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): "
+      + diff
+    );
   }
   //for less smart models, give simpler instruction.
-  return 'Summarize this git diff into a useful, 10 words commit message: '+diff
-
-}
+  return (
+    "Summarize this git diff into a useful, 10 words commit message"
+    + (commitType ? ` with commit type '${commitType}.'` : "")
+    + ": " + diff
+  );
+};
 
 const generateSingleCommit = async (diff) => {
   const prompt = getPromptForSingleCommit(diff)
@@ -182,7 +188,9 @@ const generateSingleCommit = async (diff) => {
 const generateListCommits = async (diff, numOptions = 5) => {
   const prompt =
     "I want you to act as the author of a commit message in git."
-    + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language and make ${numOptions} options that are separated by ";".`
+    + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language`
+    + (commitType ? ` with commit type '${commitType}.', ` : ", ")
+    + `and make ${numOptions} options that are separated by ";".`
     + "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     + diff;
 
