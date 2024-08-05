@@ -2,18 +2,14 @@
 
 'use strict'
 import { execSync } from "child_process";
-import { ChatGPTAPI } from "chatgpt";
 import inquirer from "inquirer";
 import { getArgs, checkGitRepository } from "./helpers.js";
 import { addGitmojiToCommitMessage } from './gitmoji.js';
-import { filterApi } from "./filterApi.js";
 import { AI_PROVIDER, MODEL, args } from "./config.js"
-
-
+import openai from "./openai.js"
+import ollama from "./ollama.js"
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
-
-
 
 console.log('Ai provider: ', AI_PROVIDER);
 
@@ -32,6 +28,8 @@ let template = args.template || process.env.AI_COMMIT_COMMIT_TEMPLATE
 const doAddEmoji = args.emoji || process.env.AI_COMMIT_ADD_EMOJI
 
 const commitType = args['commit-type'];
+
+const provider = AI_PROVIDER === 'ollama' ? ollama: openai
 
 const processTemplate = ({ template, commitMessage }) => {
   if (!template.includes('COMMIT_MESSAGE')) {
@@ -68,79 +66,16 @@ const processEmoji = (msg, doAddEmoji) => {
   return msg;
 }
 
-/**
- * send prompt to ai.
- */
-const sendMessage = async (input) => {
-  if (AI_PROVIDER == 'ollama') {
-    //mistral as default since it's fast and clever model
-    const model = MODEL || 'mistral'
-    const url = 'http://localhost:11434/api/generate'
-    const data = {
-      model,
-      prompt: input,
-      stream: false
-    }
-    console.log('prompting ollama...', url, model)
-    try {
-      const response = await fetch(url, {
-
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-
-      })
-      const responseJson=await response.json();
-      const answer = responseJson.response
-      console.log('response: ', answer)
-      console.log('prompting ai done!')
-      return answer
-    } catch (err) {
-      throw new Error('local model issues. details:' + err.message)
-    }
-  }
-
-  if (AI_PROVIDER == 'openai') {
-
-    console.log('prompting chat gpt...')
-    const api = new ChatGPTAPI({
-      apiKey,
-    });
-    const { text } = await api.sendMessage(input);
-    console.log('prompting ai done!')
-    return text
-
-  }
-
-}
-
 const getPromptForSingleCommit = (diff) => {
-  if (AI_PROVIDER == "openai") {
-    return (
-      "I want you to act as the author of a commit message in git."
-      + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language`
-      + (commitType ? ` with commit type '${commitType}'. ` : ". ")
-      + "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): "
-      + diff
-    );
-  }
-  //for less smart models, give simpler instruction.
-  return (
-    "Summarize this git diff into a useful, 10 words commit message"
-    + (commitType ? ` with commit type '${commitType}.'` : "")
-    + ": " + diff
-  );
+  return provider.getPromptForSingleCommit(diff, { commitType, language })
 };
 
 const generateSingleCommit = async (diff) => {
   const prompt = getPromptForSingleCommit(diff)
+  console.log(prompt)
+  if (!await provider.filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
 
-  if (!await filterApi({ prompt, filterFee: args['filter-fee'] })) process.exit(1);
-
-  const text = await sendMessage(prompt);
+  const text = await provider.sendMessage(prompt, { apiKey, model: MODEL });
 
   let finalCommitMessage = processEmoji(text, args.emoji);
 
@@ -160,8 +95,6 @@ const generateSingleCommit = async (diff) => {
     );
 
   }
-
-
 
   if (args.force) {
     makeCommit(finalCommitMessage);
@@ -186,17 +119,10 @@ const generateSingleCommit = async (diff) => {
 };
 
 const generateListCommits = async (diff, numOptions = 5) => {
-  const prompt =
-    "I want you to act as the author of a commit message in git."
-    + `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language`
-    + (commitType ? ` with commit type '${commitType}.', ` : ", ")
-    + `and make ${numOptions} options that are separated by ";".`
-    + "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
-    + diff;
+  const prompt = provider.getPromptForMultipleCommits(diff, { commitType, numOptions, language })
+  if (!await provider.filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
 
-  if (!await filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
-
-  const text = await sendMessage(prompt);
+  const text = await provider.sendMessage(prompt, { apiKey, model: MODEL });
 
   let msgs = text.split(";").map((msg) => msg.trim()).map(msg => processEmoji(msg, args.emoji));
 
