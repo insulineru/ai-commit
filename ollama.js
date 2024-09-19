@@ -33,9 +33,11 @@ const ollama = {
 
   getPromptForSingleCommit: (diff, { commitType, language }) => {
     return (
-      `Summarize this git diff into a useful, 10 words commit message in ${language}` +
-      (commitType ? ` with commit type '${commitType}.'` : "") +
-      ": " +
+      "I want you to act as the author of a commit message in git." +
+      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
+      (commitType ? ` with commit type '${commitType}'. ` : ". ") +
+      "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): " +
+      '\n\n'+
       diff
     );
   },
@@ -44,14 +46,9 @@ const ollama = {
     diff,
     { commitType, numOptions, language }
   ) => {
-    const prompt =
-      "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
-      (commitType ? ` with commit type '${commitType}.', ` : ", ") +
+    const prompt = `Please write a professional commit message for me to push to github based on this git diff: ${diff}. Message should be in ${language} language ` + (commitType ? ` with commit type '${commitType}.', ` : ", ") +
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):" +
-      diff;
-
+      "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
     return prompt;
   },
 
