@@ -2,34 +2,49 @@ const ollama = {
   /**
    * send prompt to ai.
    */
-  sendMessage: async (input, { apiKey, model }) => {
-    //mistral as default since it's fast and clever model
-    const url = "http://127.0.0.1:11434/api/generate";
-    const data = {
-      model: model || 'mistral',
-      prompt: input,
-      stream: false,
-    };
-    console.log("prompting ollama...", url, model);
+  sendMessage: async (input, { apiKey, model = 'mistral' }) => {
+    const url = "http://127.0.0.1:11434/api/chat";
+    const messages = [{ role: "user", content: input }];
+    const data = { model, stream: false, messages };
+  
+    console.log(`Prompting Ollama with model: ${model}...`);
+  
     try {
-      const response = await fetch(url, {
+      // Initial request
+      const initialResponse = await fetch(url, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
       });
-      const responseJson = await response.json();
-      const answer = responseJson.response;
-      console.log("response: ", answer);
-      console.log("prompting ai done!");
-      return answer;
+      const initialResult = await initialResponse.json();
+      
+      console.log("Initial answer from Ollama:", initialResult);
+      const answer = initialResult.message;
+  
+      // Refine the prompt for the final commit message
+      messages.push(answer);
+      messages.push({ role: "user", content: "Please provide a final commit message you would push to github" });
+  
+      // Final request
+      const finalResponse = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, messages }),
+      });
+      const finalResult = await finalResponse.json();
+      console.log();
+      
+      const finalAnswer = finalResult.message;
+  
+      console.log("Final response from Ollama:", finalAnswer.content);
+      return finalAnswer.content;
+  
     } catch (err) {
-      console.log(err);
-      throw new Error("local model issues. details:" + err.message);
+      console.error("Error during AI processing:", err.message);
+      throw new Error(`Local model issues. Details: ${err.message}`);
     }
   },
+  
 
   getPromptForSingleCommit: (diff, { commitType, language }) => {
     return (
@@ -37,7 +52,7 @@ const ollama = {
       `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
       "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): " +
-      '\n\n'+
+      '\n\n' +
       diff
     );
   },
