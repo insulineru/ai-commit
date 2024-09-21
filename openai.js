@@ -30,7 +30,7 @@ const openai = {
       "I want you to act as the author of a commit message in git." +
       `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
-      "Do not preface the commit with anything, use the present tense, return the full sentence. Please specify commit type where necessary " +
+      "Do not preface the commit with anything, use the present tense, return the full sentence. Please specify commit type. " +
       '\n\n'+
       diff
     );
@@ -42,7 +42,7 @@ const openai = {
       `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
       (commitType ? ` with commit type '${commitType}.', ` : ", ") +
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence. Please specify commit type where necessary." +
+      "For each option, use the present tense, return the full sentence. Please specify commit type." +
       diff;
 
     return prompt;
