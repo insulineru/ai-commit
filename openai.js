@@ -16,7 +16,7 @@ const openai = {
     const api = new ChatGPTAPI({
       apiKey,
       completionParams: {
-        model: "gpt-4-1106-preview",
+        model: "gpt-4o-mini",
       },
     });
     const { text } = await api.sendMessage(input);
