@@ -21,23 +21,8 @@ const ollama = {
       console.log("Initial answer from Ollama:", initialResult);
       const answer = initialResult.message;
   
-      // Refine the prompt for the final commit message
-      messages.push(answer);
-      messages.push({ role: "user", content: "Please provide a final commit message you would push to github" });
-  
-      // Final request
-      const finalResponse = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, messages }),
-      });
-      const finalResult = await finalResponse.json();
-      console.log();
-      
-      const finalAnswer = finalResult.message;
-  
-      console.log("Final response from Ollama:", finalAnswer.content);
-      return finalAnswer.content;
+      console.log("Response from Ollama:", answer.content);
+      return answer.content;
   
     } catch (err) {
       console.error("Error during AI processing:", err.message);
