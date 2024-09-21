@@ -6,18 +6,27 @@ const getArgs = () => {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    const key = arg.replace(/^--/, '');
-    const nextArg = args[i + 1];
-    if (/^--/.test(nextArg) || nextArg === undefined) {
-      result[key] = true;
+
+    // Check if argument is of the form --KEY=VALUE
+    if (arg.includes('=')) {
+      const [key, value] = arg.split('=');
+      result[key.replace(/^--/, '')] = value;
     } else {
-      result[key] = nextArg;
-      i++;
+      const key = arg.replace(/^--/, '');
+      const nextArg = args[i + 1];
+
+      // Check if next argument is a flag or undefined
+      if (/^--/.test(nextArg) || nextArg === undefined) {
+        result[key] = true;
+      } else {
+        result[key] = nextArg;
+        i++; // Skip next argument since it's a value
+      }
     }
   }
-
   return result;
 };
+
 
 const checkGitRepository = () => {
   try {
