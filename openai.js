@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { AI_PROVIDER } from "./config.js"
 
 const FEE_PER_1K_TOKENS = 0.02;
-const MAX_TOKENS = 4000; // Vous pouvez ajuster cette valeur si nécessaire
+const MAX_TOKENS = 128000;
 //this is the approximate cost of a completion (answer) fee from CHATGPT
 const FEE_COMPLETION = 0.001;
 

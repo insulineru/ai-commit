@@ -11,7 +11,7 @@ import ollama from "./ollama.js"
 import { encode } from 'gpt-3-encoder';
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
-const MAX_TOKENS = 4000; // Vous pouvez ajuster cette valeur si nécessaire
+const MAX_TOKENS = 128000;
 
 console.log('Ai provider: ', AI_PROVIDER);
 
