@@ -8,8 +8,10 @@ import { addGitmojiToCommitMessage } from './gitmoji.js';
 import { AI_PROVIDER, MODEL, args } from "./config.js"
 import openai from "./openai.js"
 import ollama from "./ollama.js"
+import { encode } from 'gpt-3-encoder';
 
 const REGENERATE_MSG = "♻️ Regenerate Commit Messages";
+const MAX_TOKENS = 4000; // Vous pouvez ajuster cette valeur si nécessaire
 
 console.log('Ai provider: ', AI_PROVIDER);
 
@@ -170,6 +172,33 @@ const filterLockFiles = (diff) => {
   return filteredLines.join('\n');
 };
 
+function parseDiffByFile(diff) {
+  const files = [];
+  const lines = diff.split('\n');
+  let currentFile = null;
+  let currentDiff = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const diffGitMatch = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
+    if (diffGitMatch) {
+      // Début d'un nouveau fichier
+      if (currentFile) {
+        files.push({ filename: currentFile, diff: currentDiff.join('\n') });
+      }
+      currentFile = diffGitMatch[2];
+      currentDiff = [line];
+    } else if (currentFile) {
+      currentDiff.push(line);
+    }
+  }
+  // Ajouter le dernier fichier
+  if (currentFile && currentDiff.length) {
+    files.push({ filename: currentFile, diff: currentDiff.join('\n') });
+  }
+  return files;
+}
+
+
 async function generateAICommit() {
   const isGitRepository = checkGitRepository();
 
@@ -196,9 +225,97 @@ async function generateAICommit() {
     process.exit(1);
   }
 
-  args.list
-    ? await generateListCommits(diff)
-    : await generateSingleCommit(diff);
+  const prompt = getPromptForSingleCommit(diff);
+
+  const numTokens = encode(prompt).length;
+
+  if (numTokens > MAX_TOKENS) {
+    // Diviser le diff par fichier et générer des résumés
+    console.log("The commit diff is too large for the ChatGPT API. Splitting by files...");
+
+    // Parse diff into per-file diffs
+    const fileDiffs = parseDiffByFile(diff);
+
+    const summaries = [];
+
+    for (const { filename, diff: fileDiff } of fileDiffs) {
+      const summaryPrompt = provider.getPromptForDiffSummary(fileDiff, filename, { language });
+      const numTokens = encode(summaryPrompt).length;
+
+      if (numTokens > MAX_TOKENS) {
+        console.log(`Skipping ${filename} because its diff is too large.`);
+        continue;
+      }
+
+      if (!await provider.filterApi({ prompt: summaryPrompt, filterFee: args['filter-fee'] })) continue;
+
+      const summary = await provider.sendMessage(summaryPrompt, { apiKey, model: MODEL });
+
+      summaries.push(`- **${filename}**: ${summary}`);
+    }
+
+    if (summaries.length === 0) {
+      console.log("No files to summarize.");
+      process.exit(1);
+    }
+
+    // Générer le message de commit à partir des résumés
+    const summariesText = summaries.join('\n');
+
+    const commitPrompt =
+        `Based on the following summaries of changes, create a useful commit message in ${language} language` +
+        (commitType ? ` with commit type '${commitType}'. ` : ". ") +
+        "Use the summaries below to create the commit message. Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):\n\n" +
+        summariesText;
+
+    if (!await provider.filterApi({ prompt: commitPrompt, filterFee: args['filter-fee'] })) process.exit(1);
+
+    const commitMessage = await provider.sendMessage(commitPrompt, { apiKey, model: MODEL });
+
+    let finalCommitMessage = processEmoji(commitMessage, args.emoji);
+
+    if (args.template) {
+      finalCommitMessage = processTemplate({
+        template: args.template,
+        commitMessage: finalCommitMessage,
+      })
+
+      console.log(
+          `Proposed Commit With Template:\n------------------------------\n${finalCommitMessage}\n------------------------------`
+      );
+    } else {
+      console.log(
+          `Proposed Commit:\n------------------------------\n${finalCommitMessage}\n------------------------------`
+      );
+    }
+
+    if (args.force) {
+      makeCommit(finalCommitMessage);
+      return;
+    }
+
+    const answer = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "continue",
+        message: "Do you want to continue?",
+        default: true,
+      },
+    ]);
+
+    if (!answer.continue) {
+      console.log("Commit aborted by user 🙅‍♂️");
+      process.exit(1);
+    }
+
+    makeCommit(finalCommitMessage);
+
+  } else {
+    // Procéder comme d'habitude si le diff n'est pas trop grand
+    args.list
+        ? await generateListCommits(diff)
+        : await generateSingleCommit(diff);
+  }
 }
 
 await generateAICommit();
