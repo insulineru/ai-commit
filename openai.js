@@ -59,7 +59,7 @@ const openai = {
         const fee = numTokens / 1000 * FEE_PER_1K_TOKENS + (FEE_COMPLETION * numCompletion);
 
         if (numTokens > MAX_TOKENS) {
-            console.log("The commit diff is too large for the ChatGPT API. Max 4k tokens or ~8k characters. ");
+            console.log(`The commit diff is too large for the ChatGPT API. Max ${MAX_TOKENS/1000}k tokens or ~${MAX_TOKENS/500} characters.`);
             return false;
         }
 
