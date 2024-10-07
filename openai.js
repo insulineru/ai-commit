@@ -27,10 +27,10 @@ const openai = {
   getPromptForSingleCommit: (diff, {commitType, language}) => {
 
     return (
-      "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
+      "I want you to act as the author of a commit message in git. " +
+      `I have added a git diff below, and your job is to convert it into a useful commit message in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
-      "Do not preface the commit with anything, use the present tense, return the full sentence. Please specify commit type. " +
+      "Do not preface the commit with anything, use the present tense, return the full sentence. Please include commit type: " +
       '\n\n'+
       diff
     );
@@ -39,10 +39,10 @@ const openai = {
   getPromptForMultipleCommits: (diff, {commitType, numOptions, language}) => {
     const prompt =
       "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
+      `I have added a git diff below, and your job is to convert it into a useful commit message in ${language} language` +
       (commitType ? ` with commit type '${commitType}.', ` : ", ") +
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence. Please specify commit type." +
+      "For each option, use the present tense, return the full sentence. Please include commit type:" +
       diff;
 
     return prompt;
