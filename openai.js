@@ -5,7 +5,7 @@ import { AI_PROVIDER } from "./config.js"
 
 const FEE_PER_1K_TOKENS = 0.02;
 const MAX_TOKENS = 128000;
-//this is the approximate cost of a completion (answer) fee from CHATGPT
+// this is the approximate cost of a completion (answer) fee from CHATGPT
 const FEE_COMPLETION = 0.001;
 
 const openai = {
@@ -46,7 +46,7 @@ const openai = {
         return prompt;
     },
 
-    // Nouvelle méthode pour générer le prompt de résumé du diff
+    // New function to prompt for a summary of the diff
     getPromptForDiffSummary: (diff, filename, {language}) => {
         return (
             `Summarize the following git diff for the file '${filename}' in ${language} language. Be concise and focus on the main changes:\n\n` +

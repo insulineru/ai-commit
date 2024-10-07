@@ -181,7 +181,7 @@ function parseDiffByFile(diff) {
     const line = lines[i];
     const diffGitMatch = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
     if (diffGitMatch) {
-      // Début d'un nouveau fichier
+      // New file diff
       if (currentFile) {
         files.push({ filename: currentFile, diff: currentDiff.join('\n') });
       }
@@ -191,7 +191,7 @@ function parseDiffByFile(diff) {
       currentDiff.push(line);
     }
   }
-  // Ajouter le dernier fichier
+  // Add the last file
   if (currentFile && currentDiff.length) {
     files.push({ filename: currentFile, diff: currentDiff.join('\n') });
   }
@@ -230,7 +230,7 @@ async function generateAICommit() {
   const numTokens = encode(prompt).length;
 
   if (numTokens > MAX_TOKENS) {
-    // Diviser le diff par fichier et générer des résumés
+    // Split the diff by file and generate summaries
     console.log("The commit diff is too large for the ChatGPT API. Splitting by files...");
 
     // Parse diff into per-file diffs
@@ -259,7 +259,7 @@ async function generateAICommit() {
       process.exit(1);
     }
 
-    // Générer le message de commit à partir des résumés
+    // Combine summaries into a single prompt
     const summariesText = summaries.join('\n');
 
     const commitPrompt =
@@ -311,7 +311,7 @@ async function generateAICommit() {
     makeCommit(finalCommitMessage);
 
   } else {
-    // Procéder comme d'habitude si le diff n'est pas trop grand
+    // Proceed as usual if the diff is not too large
     args.list
         ? await generateListCommits(diff)
         : await generateSingleCommit(diff);
