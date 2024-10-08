@@ -6,9 +6,9 @@ const ollama = {
     const url = "http://127.0.0.1:11434/api/chat";
     const messages = [{ role: "user", content: input }];
     const data = { model, stream: false, messages };
-  
+
     console.log(`Prompting Ollama with model: ${model}...`);
-  
+
     try {
       // Initial request
       const initialResponse = await fetch(url, {
@@ -17,24 +17,23 @@ const ollama = {
         body: JSON.stringify(data),
       });
       const initialResult = await initialResponse.json();
-      
+
       console.log("Initial answer from Ollama:", initialResult);
       const answer = initialResult.message;
-  
+
       console.log("Response from Ollama:", answer.content);
       return answer.content;
-  
+
     } catch (err) {
       console.error("Error during AI processing:", err.message);
       throw new Error(`Local model issues. Details: ${err.message}`);
     }
   },
-  
+
 
   getPromptForSingleCommit: (diff, { commitType, language }) => {
     return (
-      "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff below, and your job is to convert it into a useful commit message in ${language} language` +
+      `Write a professional git commit message based on the a diff below in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
       "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): " +
       '\n\n' +
