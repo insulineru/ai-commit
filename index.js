@@ -227,6 +227,8 @@ async function generateAICommit() {
 
   const prompt = getPromptForSingleCommit(diff);
 
+  console.log(prompt);
+
   const numTokens = encode(prompt).length;
 
   if (numTokens > MAX_TOKENS) {
