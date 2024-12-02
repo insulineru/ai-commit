@@ -16,7 +16,7 @@ const openai = {
     const api = new ChatGPTAPI({
       apiKey,
       completionParams: {
-        model: "gpt-4-1106-preview",
+        model: "gpt-4o-mini",
       },
     });
     const { text } = await api.sendMessage(input);
@@ -27,10 +27,9 @@ const openai = {
   getPromptForSingleCommit: (diff, {commitType, language}) => {
 
     return (
-      "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
+      `Write a professional git commit message based on the a diff below in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
-      "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): " +
+      "Do not preface the commit with anything, use the present tense, return the full sentence and also commit type: " +
       '\n\n'+
       diff
     );
@@ -38,11 +37,10 @@ const openai = {
 
   getPromptForMultipleCommits: (diff, {commitType, numOptions, language}) => {
     const prompt =
-      "I want you to act as the author of a commit message in git." +
-      `I'll enter a git diff, and your job is to convert it into a useful commit message in ${language} language` +
-      (commitType ? ` with commit type '${commitType}.', ` : ", ") +
+      `Write a professional git commit message based on the a diff below in ${language} language` +
+      (commitType ? ` with commit type '${commitType}'. ` : ". ")+
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):" +
+      "For each option, use the present tense, return the full sentence and also commit type:" +
       diff;
 
     return prompt;
