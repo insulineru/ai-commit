@@ -31,11 +31,12 @@ const ollama = {
   },
 
 
-  getPromptForSingleCommit: (diff, { commitType, language }) => {
+  getPromptForSingleCommit: (diff, { commitType, customMessageConvention, language }) => {
     return (
       `Write a professional git commit message based on the a diff below in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
-      "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>): " +
+      "Do not preface the commit with anything, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>)" +
+      `${customMessageConvention ? `. Additionally apply these JSON formatted rules to your response, even though they might be against previous mentioned rules ${customMessageConvention}: ` : ': '}` +
       '\n\n' +
       diff
     );
@@ -43,11 +44,13 @@ const ollama = {
 
   getPromptForMultipleCommits: (
     diff,
-    { commitType, numOptions, language }
+    { commitType, customMessageConvention, numOptions, language }
   ) => {
-    const prompt = `Please write a professional commit message for me to push to github based on this git diff: ${diff}. Message should be in ${language} language ` + (commitType ? ` with commit type '${commitType}.', ` : ", ") +
+    const prompt = `Please write a professional commit message for me to push to github based on this git diff: ${diff}. Message should be in ${language} language ` +
+      (commitType ? ` with commit type '${commitType}.', ` : ", ") +
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>):"
+      "For each option, use the present tense, return the full sentence, and use the conventional commits specification (<type in lowercase>: <subject>)" +
+      `${customMessageConvention ? `. Additionally apply these JSON formatted rules to your response, even though they might be against previous mentioned rules ${customMessageConvention}: ` : ': '}`
     return prompt;
   },
 
