@@ -31,6 +31,8 @@ const commitType = args['commit-type'];
 
 const provider = AI_PROVIDER === 'ollama' ? ollama : openai
 
+const customMessageConvention = args['custom-conventions']
+
 const processTemplate = ({ template, commitMessage }) => {
   if (!template.includes('COMMIT_MESSAGE')) {
     console.log(`Warning: template doesn't include {COMMIT_MESSAGE}`)
@@ -48,12 +50,12 @@ const processTemplate = ({ template, commitMessage }) => {
     finalCommitMessage = finalCommitMessage.replaceAll("{GIT_BRANCH}", currentBranch)
   }
 
-  return finalCommitMessage;
+  return finalCommitMessage.trim();
 }
 
 const makeCommit = (input) => {
   console.log("Committing Message... 🚀 ");
-  execSync(`git commit -F -`, { input });
+  execSync(`git commit -F -`, { input: input.trim() });
   console.log("Commit Successful! 🎉");
 };
 
@@ -67,7 +69,7 @@ const processEmoji = (msg, doAddEmoji) => {
 }
 
 const getPromptForSingleCommit = (diff) => {
-  return provider.getPromptForSingleCommit(diff, { commitType, language })
+  return provider.getPromptForSingleCommit(diff, { commitType, customMessageConvention, language })
 };
 
 const generateSingleCommit = async (diff) => {
@@ -119,7 +121,7 @@ const generateSingleCommit = async (diff) => {
 };
 
 const generateListCommits = async (diff, numOptions = 5) => {
-  const prompt = provider.getPromptForMultipleCommits(diff, { commitType, numOptions, language })
+  const prompt = provider.getPromptForMultipleCommits(diff, { commitType, customMessageConvention, numOptions, language })
   if (!await provider.filterApi({ prompt, filterFee: args['filter-fee'], numCompletion: numOptions })) process.exit(1);
 
   const text = await provider.sendMessage(prompt, { apiKey, model: MODEL });
@@ -153,7 +155,7 @@ const generateListCommits = async (diff, numOptions = 5) => {
   makeCommit(answer.commit);
 };
 
-// Добавьте эту функцию после импортов
+// Add this function after imports
 const filterLockFiles = (diff) => {
   const lines = diff.split('\n');
   let isLockFile = false;

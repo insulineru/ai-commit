@@ -24,23 +24,26 @@ const openai = {
     return text;
   },
 
-  getPromptForSingleCommit: (diff, {commitType, language}) => {
+  getPromptForSingleCommit: (diff, {commitType, customMessageConvention, language}) => {
 
     return (
       `Write a professional git commit message based on the a diff below in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ") +
-      "Do not preface the commit with anything, use the present tense, return the full sentence and also commit type: " +
+      `${customMessageConvention ? `Apply the following rules of an JSON formatted object, use key as what has to be changed and value as how it should be changes to your response: ${customMessageConvention}.` : ''}` +
+      "Do not preface the commit with anything, use the present tense, return the full sentence and also commit type" +
+      `${customMessageConvention ? `. Additionally apply these JSON formatted rules to your response, even though they might be against previous mentioned rules ${customMessageConvention}: ` : ': '}` +
       '\n\n'+
       diff
     );
   },
 
-  getPromptForMultipleCommits: (diff, {commitType, numOptions, language}) => {
+  getPromptForMultipleCommits: (diff, {commitType, customMessageConvention, numOptions, language}) => {
     const prompt =
       `Write a professional git commit message based on the a diff below in ${language} language` +
       (commitType ? ` with commit type '${commitType}'. ` : ". ")+
       `and make ${numOptions} options that are separated by ";".` +
-      "For each option, use the present tense, return the full sentence and also commit type:" +
+      "For each option, use the present tense, return the full sentence and also commit type" +
+      `${customMessageConvention ? `. Additionally apply these JSON formatted rules to your response, even though they might be against previous mentioned rules ${customMessageConvention}: ` : ': '}` +
       diff;
 
     return prompt;
