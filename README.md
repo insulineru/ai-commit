@@ -5,7 +5,7 @@
 
 💻 Tired of writing boring commit messages? Let AI-Commit help!
 
-This package uses the power of OpenAI's GPT-3 model to understand your code changes and generate meaningful commit messages for you. Whether you're working on a solo project or collaborating with a team, AI-Commit makes it easy to keep your commit history organized and informative.
+This package uses the power of OpenAI's GPT-4o-mini model to understand your code changes and generate meaningful commit messages for you. Whether you're working on a solo project or collaborating with a team, AI-Commit makes it easy to keep your commit history organized and informative.
 
 ## Demo
 ![ai_commit_demo(1)(2)](https://github.com/JinoArch/ai-commit/assets/39610834/3002dfa2-737a-44b9-91c9-b43907f11144)
