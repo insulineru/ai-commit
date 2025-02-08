@@ -103,6 +103,10 @@ const generateSingleCommit = async (diff) => {
     return;
   }
 
+  if (args["message-only"]) {
+    process.exit(0);
+  }
+
   const answer = await inquirer.prompt([
     {
       type: "confirm",

@@ -38,6 +38,8 @@ You can also use the local model for free with Ollama.
 
 `--force`: Automatically create a commit without being prompted to select a message (can't be used with `--list`)
 
+`--message-only` Runs the app in a non-interactive mode, avoiding unnecessary prompts or actions beyond displaying the message.
+
 `--filter-fee`: Displays the approximate fee for using the API and prompts you to confirm the request
 
 `--apiKey`: Your OpenAI API key. It is not recommended to pass `apiKey` here, it is better to use `env` variable
