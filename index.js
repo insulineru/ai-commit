@@ -104,7 +104,6 @@ const generateSingleCommit = async (diff) => {
   }
 
   if (args["message-only"]) {
-    console.log(finalCommitMessage);
     process.exit(0);
   }
 
