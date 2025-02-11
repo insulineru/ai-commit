@@ -3,7 +3,8 @@ const ollama = {
    * send prompt to ai.
    */
   sendMessage: async (input, { apiKey, model = 'mistral' }) => {
-    const url = "http://127.0.0.1:11434/api/chat";
+    const host = process.env.OLLAMA_HOST || "http://127.0.0.1:11434"
+    const url = `${host}/api/chat`;
     const messages = [{ role: "user", content: input }];
     const data = { model, stream: false, messages };
 
