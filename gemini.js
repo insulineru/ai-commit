@@ -6,7 +6,10 @@ const MAX_TOKENS = 1_000_000;
 const FEE_COMPLETION = 0.001;
 
 const gemini = {
-  sendMessage: async (input, { apiKey, model }) => {
+  sendMessage: async (
+    input,
+    { apiKey, model = "google/gemini-2.0-flash-lite-preview-02-05:free" }
+  ) => {
     console.log("prompting Gemini API...");
     console.log("prompt: ", input);
 
@@ -16,12 +19,10 @@ const gemini = {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          //   "HTTP-Referer": "<YOUR_SITE_URL>",
-          //   "X-Title": "<YOUR_SITE_NAME>",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-lite-preview-02-05:free",
+          model,
           messages: [
             {
               role: "user",

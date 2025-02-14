@@ -22,6 +22,10 @@ This package uses the power of OpenAI's GPT-4o-mini model to understand your cod
 7. AI-Commit will analyze your changes and generate a commit message
 8. Approve the commit message and AI-Commit will create the commit for you ✅
 
+## Gemini Note
+
+We're using https://openrouter.ai/ and the model `google/gemini-2.0-flash-lite-preview-02-05:free` for Gemini, it support many models also free model, you can create account and try your own key without paying anything.
+
 ## Using local model (ollama)
 
 You can also use the local model for free with Ollama.
