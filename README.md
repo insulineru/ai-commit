@@ -8,17 +8,23 @@
 This package uses the power of OpenAI's GPT-4o-mini model to understand your code changes and generate meaningful commit messages for you. Whether you're working on a solo project or collaborating with a team, AI-Commit makes it easy to keep your commit history organized and informative.
 
 ## Demo
+
 ![ai_commit_demo(1)(2)](https://github.com/JinoArch/ai-commit/assets/39610834/3002dfa2-737a-44b9-91c9-b43907f11144)
 
-
 ## How it Works
+
 1. Install AI-Commit using `npm install -g ai-commit`
-2. Generate an OpenAI API key [here](https://platform.openai.com/account/api-keys )
-3. Set your `OPENAI_API_KEY` environment variable to your API key
-1. Make your code changes and stage them with `git add .`
-2. Type `ai-commit` in your terminal
-3. AI-Commit will analyze your changes and generate a commit message
-4. Approve the commit message and AI-Commit will create the commit for you ✅
+2. Generate an OpenAI API key [here](https://platform.openai.com/account/api-keys)
+3. Set your `AI_COMMIT_API_KEY` environment variable to your API key
+4. Set `PROVIDER` in your environment to `openai` or `gemini`. Default is `openai`
+5. Make your code changes and stage them with `git add .`
+6. Type `ai-commit` in your terminal
+7. AI-Commit will analyze your changes and generate a commit message
+8. Approve the commit message and AI-Commit will create the commit for you ✅
+
+## Gemini Note
+
+We're using https://openrouter.ai/ and the model `google/gemini-2.0-flash-lite-preview-02-05:free` for Gemini, it support many models also free model, you can create account and try your own key without paying anything.
 
 ## Using local model (ollama)
 
@@ -28,12 +34,13 @@ You can also use the local model for free with Ollama.
 2. Install Ollama from https://ollama.ai/
 3. Run `ollama run mistral` to fetch model for the first time
 4. Set `PROVIDER` in your environment to `ollama`
-1. Make your code changes and stage them with `git add .`
-2. Type `ai-commit` in your terminal
-3. AI-Commit will analyze your changes and generate a commit message
-4. Approve the commit message and AI-Commit will create the commit for you ✅
+5. Make your code changes and stage them with `git add .`
+6. Type `ai-commit` in your terminal
+7. AI-Commit will analyze your changes and generate a commit message
+8. Approve the commit message and AI-Commit will create the commit for you ✅
 
 ## Options
+
 `--list`: Select from a list of 5 generated messages (or regenerate the list)
 
 `--force`: Automatically create a commit without being prompted to select a message (can't be used with `--list`)
@@ -51,6 +58,7 @@ You can also use the local model for free with Ollama.
 `--commit-type`: Specify the type of commit to generate. This will be used as the type in the commit message e.g. `--commit-type feat`
 
 ## Contributing
+
 We'd love for you to contribute to AI-Commit! Here's how:
 
 1. Fork the repository
@@ -73,6 +81,7 @@ We'd love for you to contribute to AI-Commit! Here's how:
 - [ ] Reverse commit message generation: Allow users to generate code changes from a commit message.
 
 ## License
+
 AI-Commit is licensed under the MIT License.
 
 ## Happy coding 🚀
