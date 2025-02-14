@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish:major": "npm version major && npm publish --access public",
-    "ollama": "PROVIDER=ollama node index.js "
+    "ollama": "PROVIDER=ollama node index.js",
+    "gemini": "PROVIDER=gemini node index.js"
   },
   "bin": {
     "ai-commit": "./index.js"
